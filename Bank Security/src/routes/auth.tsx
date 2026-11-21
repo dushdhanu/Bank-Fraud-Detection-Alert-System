@@ -9,13 +9,13 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Analyst Sign In — Sentinel Risk Ops" },
+      { title: "Analyst Sign In — BankGuard" },
       {
         name: "description",
         content:
-          "Sign in to the Sentinel Risk Ops console to review flagged transactions, cases and fraud alerts.",
+          "Sign in to the BankGuard console to review flagged transactions, cases and fraud alerts.",
       },
-      { property: "og:title", content: "Analyst Sign In — Sentinel Risk Ops" },
+      { property: "og:title", content: "Analyst Sign In — BankGuard" },
       {
         property: "og:description",
         content: "Secure access to the fraud detection and case management console.",
@@ -55,7 +55,7 @@ function AuthPage() {
           },
         });
         if (error) throw error;
-        toast.success("Account created. Check your inbox if confirmation is required.");
+        toast.success("Check your inbox to verify your email before signing in.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -75,16 +75,16 @@ function AuthPage() {
         <Link to="/" className="mb-6 flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-primary" />
           <span className="font-mono text-sm font-semibold tracking-widest text-foreground">
-            SENTINEL RISK OPS
+            BANKGUARD
           </span>
         </Link>
 
         <div className="rounded-lg border border-border bg-card p-6">
           <h1 className="text-lg font-semibold text-foreground">
-            {mode === "signin" ? "Analyst sign in" : "Create analyst account"}
+            {mode === "signin" ? "Sign in" : "Create your account"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Access is limited to the fraud operations console.
+            Synthetic data only. Staff privileges require separate authorization.
           </p>
 
           <form className="mt-5 space-y-4" onSubmit={submit}>
@@ -117,7 +117,7 @@ function AuthPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                minLength={6}
+                minLength={mode === "signup" ? 12 : 1}
                 required
               />
             </div>

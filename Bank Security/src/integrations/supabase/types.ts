@@ -426,6 +426,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      simulate_bankguard_event: { Args: { event_id: string; scenario: string }; Returns: Json }
+      review_bankguard_case: { Args: { case_id: string; new_status: "open" | "in_review" | "escalated" | "resolved"; note: string | null }; Returns: undefined }
+      review_bankguard_alert: { Args: { alert_id: string; verdict: string }; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

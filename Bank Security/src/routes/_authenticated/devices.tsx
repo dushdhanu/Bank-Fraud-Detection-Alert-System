@@ -8,13 +8,13 @@ import { ago, maskAccount } from "@/lib/format";
 export const Route = createFileRoute("/_authenticated/devices")({
   head: () => ({
     meta: [
-      { title: "Device & IP Log — Sentinel Risk Ops" },
+      { title: "Device & IP Log — BankGuard" },
       {
         name: "description",
         content:
           "Device, browser, IP address, ASN and fingerprint metadata captured at login and transaction time.",
       },
-      { property: "og:title", content: "Device & IP Log — Sentinel Risk Ops" },
+      { property: "og:title", content: "Device & IP Log — BankGuard" },
       {
         property: "og:description",
         content: "The metadata trail investigators legally work from: IP, ASN, device, fingerprint.",

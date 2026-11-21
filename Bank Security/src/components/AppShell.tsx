@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import type { ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -28,11 +28,13 @@ export function AppShell({
   children: ReactNode;
 }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const viewer = useServerFn(getViewerContext);
   const { data } = useQuery({ queryKey: ["viewer"], queryFn: () => viewer({}) });
 
   async function signOut() {
     await supabase.auth.signOut();
+    queryClient.clear();
     navigate({ to: "/auth" });
   }
 
@@ -43,7 +45,7 @@ export function AppShell({
           <Link to="/console" className="group flex items-center gap-2">
             <span className="live-dot h-2 w-2 rounded-full bg-primary" />
             <span className="font-mono text-sm font-semibold tracking-widest text-foreground transition-colors group-hover:text-primary">
-              SENTINEL
+              BANKGUARD
             </span>
           </Link>
 
@@ -74,6 +76,7 @@ export function AppShell({
       </header>
 
       <main className="px-4 py-6">
+        <p className="mb-4 rounded border border-border bg-secondary p-3 text-sm">Demonstration only · Synthetic transactions · Mobile delivery and financial data providers pending configuration.</p>
         <div className="fade-up mb-5 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-xl font-semibold tracking-tight text-foreground">{title}</h1>

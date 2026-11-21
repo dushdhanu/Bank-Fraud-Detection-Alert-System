@@ -11,13 +11,13 @@ import type { Severity } from "@/lib/format";
 export const Route = createFileRoute("/_authenticated/rules")({
   head: () => ({
     meta: [
-      { title: "Detection Rules — Sentinel Risk Ops" },
+      { title: "Detection Rules — BankGuard" },
       {
         name: "description",
         content:
           "Weighted fraud detection rules that score each transaction: new device, high value, foreign geography and odd-hour activity.",
       },
-      { property: "og:title", content: "Detection Rules — Sentinel Risk Ops" },
+      { property: "og:title", content: "Detection Rules — BankGuard" },
       {
         property: "og:description",
         content: "Enable, disable and inspect the weighted rules behind every risk score.",

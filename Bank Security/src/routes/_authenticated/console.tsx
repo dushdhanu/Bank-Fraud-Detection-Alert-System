@@ -16,13 +16,13 @@ import { ago, money, maskAccount, type Severity } from "@/lib/format";
 export const Route = createFileRoute("/_authenticated/console")({
   head: () => ({
     meta: [
-      { title: "Monitoring Console — Sentinel Risk Ops" },
+      { title: "Monitoring Console — BankGuard" },
       {
         name: "description",
         content:
           "Live transaction stream with risk scores, rule hits and device fingerprint metadata for fraud analysts.",
       },
-      { property: "og:title", content: "Monitoring Console — Sentinel Risk Ops" },
+      { property: "og:title", content: "Monitoring Console — BankGuard" },
       {
         property: "og:description",
         content: "Live transaction monitoring and risk scoring for the fraud operations team.",
@@ -39,9 +39,10 @@ function ConsolePage() {
   const snapshotFn = useServerFn(getConsoleSnapshot);
   const detailFn = useServerFn(getTransactionDetail);
   const simulateFn = useServerFn(simulateTransaction);
+  const [scenario, setScenario] = useState("normal");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["snapshot"],
     queryFn: () => snapshotFn({}),
   });
@@ -53,7 +54,7 @@ function ConsolePage() {
   });
 
   const simulate = useMutation({
-    mutationFn: () => simulateFn({}),
+    mutationFn: () => simulateFn({ data: { eventId: crypto.randomUUID(), scenario: scenario as "normal" | "large_transfer" | "new_device" | "suspicious_transfer" | "unusual_hour" } }),
     onSuccess: (res) => {
       toast.success(
         `${res.txnRef} scored ${res.riskScore} (${res.severity})${res.caseRef ? ` · ${res.caseRef} opened` : ""}`,
@@ -72,18 +73,25 @@ function ConsolePage() {
   return (
     <AppShell
       title="Monitoring console"
-      subtitle="Live simulated transaction stream, scored against the active rule set."
+      subtitle="SIMULATED DATA · Prototype scores. No real accounts connected or blocked."
       actions={
-        <Button onClick={() => simulate.mutate()} disabled={simulate.isPending}>
+        <div className="flex flex-wrap items-center gap-2">
+        <label htmlFor="scenario" className="sr-only">Synthetic scenario</label>
+        <select id="scenario" value={scenario} onChange={e => setScenario(e.target.value)} className="rounded border border-border bg-card p-2 text-sm">
+          <option value="normal">Normal payment</option><option value="large_transfer">Large transfer</option>
+          <option value="new_device">Unfamiliar device</option><option value="suspicious_transfer">Large transfer + new device</option>
+          <option value="unusual_hour">Unusual local hour</option>
+        </select><Button onClick={() => simulate.mutate()} disabled={simulate.isPending}>
           {simulate.isPending ? "Simulating…" : "Simulate transaction"}
         </Button>
       }
     >
+      {isError && <div role="alert" className="mb-4 rounded border border-destructive p-4">Could not load transactions. Check the database configuration. <Button variant="outline" onClick={() => refetch()}>Retry</Button></div>}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Kpi label="Transactions (recent)" value={String(txns.length)} delay={0} />
-        <Kpi label="Flagged / blocked" value={String(flagged.length)} tone="high" delay={60} />
+        <Kpi label="Flagged for review" value={String(flagged.length)} tone="high" delay={60} />
         <Kpi label="Critical severity" value={String(critical.length)} tone="critical" delay={120} />
-        <Kpi label="Flagged exposure" value={money(exposure)} delay={180} />
+        <Kpi label="High / critical alerts" value={String(data?.alerts.length ?? 0)} delay={180} />
       </div>
 
 
@@ -112,6 +120,9 @@ function ConsolePage() {
                     <tr
                       key={t.id}
                       onClick={() => setSelectedId(t.id)}
+                      tabIndex={0}
+                      aria-label={`Inspect ${t.txn_ref}`}
+                      onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedId(t.id); } }}
                       style={{ animationDelay: `${Math.min(i, 15) * 25}ms` }}
                       className={`fade-up row-hover cursor-pointer border-b border-border/60 hover:bg-secondary ${
                         selectedId === t.id
@@ -125,7 +136,7 @@ function ConsolePage() {
                         {t.accounts ? maskAccount(t.accounts.account_number) : "—"}
                       </td>
                       <td className="px-3 py-2 font-mono text-xs text-foreground">
-                        {money(t.amount)}
+                        {money(t.amount, t.currency)}
                       </td>
                       <td className="px-3 py-2 text-xs text-muted-foreground">
                         {t.city}, {t.country}
@@ -169,7 +180,7 @@ function ConsolePage() {
                 </div>
                 <dl className="grid grid-cols-2 gap-y-2 text-xs">
                   <Field k="Holder" v={detail.transaction.accounts?.holder_name ?? "—"} />
-                  <Field k="Amount" v={money(detail.transaction.amount)} />
+                  <Field k="Amount" v={money(detail.transaction.amount, detail.transaction.currency)} />
                   <Field k="Merchant" v={detail.transaction.merchant ?? "—"} />
                   <Field k="Risk score" v={String(detail.transaction.risk_score)} />
                   <Field k="IP" v={detail.transaction.ip_address ?? "—"} />

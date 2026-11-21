@@ -1,10 +1,10 @@
 export type Severity = "low" | "medium" | "high" | "critical";
 
-export function money(value: number | string): string {
+export function money(value: number | string, currency = "USD"): string {
   const n = typeof value === "string" ? Number(value) : value;
   return n.toLocaleString("en-US", {
     style: "currency",
-    currency: "USD",
+    currency,
     minimumFractionDigits: 2,
   });
 }

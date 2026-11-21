@@ -8,13 +8,13 @@ import { ago } from "@/lib/format";
 export const Route = createFileRoute("/_authenticated/audit")({
   head: () => ({
     meta: [
-      { title: "Audit Trail — Sentinel Risk Ops" },
+      { title: "Audit Trail — BankGuard" },
       {
         name: "description",
         content:
           "Append-only log of every analyst action taken on fraud cases, with actor, action and timestamp.",
       },
-      { property: "og:title", content: "Audit Trail — Sentinel Risk Ops" },
+      { property: "og:title", content: "Audit Trail — BankGuard" },
       {
         property: "og:description",
         content: "Reconstruct any investigation from the append-only case event log.",

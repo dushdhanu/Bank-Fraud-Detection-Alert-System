@@ -16,13 +16,13 @@ const STATUSES: CaseStatus[] = ["open", "in_review", "escalated", "resolved"];
 export const Route = createFileRoute("/_authenticated/cases")({
   head: () => ({
     meta: [
-      { title: "Case Queue — Sentinel Risk Ops" },
+      { title: "Case Queue — BankGuard" },
       {
         name: "description",
         content:
           "Investigator case queue for flagged bank transactions: review, escalate or resolve with a full audit trail.",
       },
-      { property: "og:title", content: "Case Queue — Sentinel Risk Ops" },
+      { property: "og:title", content: "Case Queue — BankGuard" },
       {
         property: "og:description",
         content: "Review, escalate and resolve fraud cases with recorded analyst actions.",

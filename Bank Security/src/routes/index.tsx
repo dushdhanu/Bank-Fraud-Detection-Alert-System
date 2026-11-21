@@ -7,13 +7,13 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Sentinel Risk Ops — Bank Fraud Detection Console" },
+      { title: "BankGuard — Bank Fraud Detection Console" },
       {
         name: "description",
         content:
           "Rule-based transaction monitoring, device and IP fingerprint logging, alerting and investigator case management for bank fraud detection.",
       },
-      { property: "og:title", content: "Sentinel Risk Ops — Bank Fraud Detection Console" },
+      { property: "og:title", content: "BankGuard — Bank Fraud Detection Console" },
       {
         property: "og:description",
         content:
@@ -75,7 +75,7 @@ function Landing() {
           <div className="flex items-center gap-2">
             <span className="live-dot h-2 w-2 rounded-full bg-primary glow-pulse" />
             <span className="fade-in-soft font-mono text-sm font-semibold tracking-widest text-foreground">
-              SENTINEL RISK OPS
+              BANKGUARD
             </span>
           </div>
 
@@ -101,7 +101,7 @@ function Landing() {
             style={{ animationDelay: "160ms" }}
             className="fade-up mt-4 max-w-2xl text-base text-muted-foreground"
           >
-            Sentinel simulates card and transfer activity, scores it against configurable fraud
+            BankGuard simulates card and transfer activity, scores it against configurable fraud
             rules, records device and network metadata, alerts the account holder, and turns the
             worst of it into a managed case file. It does not identify or attribute attackers —
             that remains a matter for law enforcement.
@@ -155,7 +155,7 @@ function Landing() {
 
       <footer className="border-t border-border px-4 py-6">
         <p className="mx-auto max-w-5xl font-mono text-xs text-muted-foreground">
-          Sentinel Risk Ops — academic demonstration system. All data is simulated.
+          BankGuard — academic demonstration system. All data is simulated.
         </p>
       </footer>
     </div>
