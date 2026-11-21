@@ -95,3 +95,40 @@ test('staff case reviews are atomic and audited; failed reviews leave no log',as
   assert.equal((await query('select count(*)::int as n from public.case_events'))[0].n,count);
   await assert.rejects(query("delete from public.case_events"));
 });
+
+test('classification boundaries use configured rule weights and disabled rules do not fire',async () => {
+  await db.exec('reset role');
+  const user=randomUUID();
+  await query("insert into auth.users values ($1,'boundary@example.test','{}')",[user]);
+  await db.exec("update public.rules set enabled = (code='R-114')");
+  for(const [weight,band] of [[29,'low'],[30,'medium'],[59,'medium'],[60,'high'],[79,'high'],[80,'critical']]) {
+    await db.exec('reset role');
+    await query("update public.rules set weight=$1 where code='R-114'",[weight]);
+    await asUser(user);
+    const result=await simulate('suspicious_transfer');
+    assert.equal(result.riskScore,weight); assert.equal(result.severity,band);
+  }
+});
+
+test('backdated unusual-hour scenarios cannot bypass received-time rate limiting',async () => {
+  await db.exec('reset role');
+  const user=randomUUID();
+  await query("insert into auth.users values ($1,'time@example.test','{}')",[user]);
+  await asUser(user);
+  for(let i=0;i<10;i++) await simulate('unusual_hour');
+  await assert.rejects(simulate('unusual_hour'),/Simulation limit/);
+});
+
+test('fresh installation migrations create no shared financial fixtures',async () => {
+  const fresh=new PGlite();
+  try {
+    await fresh.exec(`create role anon; create role authenticated; create role service_role;
+      create schema auth; create table auth.users(id uuid primary key,email text,raw_user_meta_data jsonb);
+      create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;`);
+    await fresh.exec(await readFile(new URL('../supabase/migrations/202611210000_existing_baseline.sql',import.meta.url),'utf8'));
+    await fresh.exec(await readFile(new URL('../supabase/migrations/202611210001_bankguard_mvp.sql',import.meta.url),'utf8'));
+    assert.equal((await fresh.query('select count(*)::int as n from public.accounts')).rows[0].n,0);
+    assert.equal((await fresh.query('select count(*)::int as n from public.transactions')).rows[0].n,0);
+    assert.equal((await fresh.query('select count(*)::int as n from public.rules where enabled')).rows[0].n,4);
+  } finally { await fresh.close(); }
+});

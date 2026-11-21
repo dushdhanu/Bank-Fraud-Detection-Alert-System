@@ -132,7 +132,7 @@ function CasesPage() {
               <p className="font-mono text-xs text-muted-foreground">
                 {detail.case.accounts?.holder_name ?? "—"} ·{" "}
                 {detail.case.transactions
-                  ? `${detail.case.transactions.txn_ref} ${money(detail.case.transactions.amount)}`
+                  ? `${detail.case.transactions.txn_ref} ${money(detail.case.transactions.amount, detail.case.transactions.currency)}`
                   : "no linked transaction"}
               </p>
 

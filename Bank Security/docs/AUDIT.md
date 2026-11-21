@@ -23,6 +23,7 @@ Scope: the supplied local Bank Security directory, application source, SQL, pack
 | Medium | Many read errors became empty arrays | Main dashboard and list functions surface failures; visible dashboard/alert error states |
 | Medium | Direct staff writes allowed forged/deleted operational history | Revoke direct operational writes; case/review RPCs generate audit entries |
 | Medium | No tests or useful setup/security documentation | Real PostgreSQL-engine tests, CI, setup and limitations |
+| High/Critical | Original framework, validator and transitive dependencies had published security advisories | Patched Start/Router, Vite and Zod; compatible transitive updates; runtime audit now reports zero known advisories. Four moderate development-only findings remain in unused Drizzle tooling |
 
 ## Release sequence
 

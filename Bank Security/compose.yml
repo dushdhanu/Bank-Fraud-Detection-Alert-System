@@ -1,0 +1,13 @@
+services:
+  bankguard:
+    build:
+      context: .
+      args:
+        VITE_SUPABASE_URL: ${VITE_SUPABASE_URL:?Set the development Supabase URL}
+        VITE_SUPABASE_PUBLISHABLE_KEY: ${VITE_SUPABASE_PUBLISHABLE_KEY:?Set the public key}
+    environment:
+      SUPABASE_URL: ${SUPABASE_URL:?Set the server Supabase URL}
+      SUPABASE_PUBLISHABLE_KEY: ${SUPABASE_PUBLISHABLE_KEY:?Set the public key}
+    ports:
+      - "127.0.0.1:3000:3000"
+    restart: unless-stopped

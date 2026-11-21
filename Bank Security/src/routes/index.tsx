@@ -30,17 +30,17 @@ const FEATURES = [
   {
     code: "01",
     title: "Transaction monitoring",
-    body: "A live stream of simulated bank transactions with amount, location, device and IP metadata on every row.",
+    body: "Monitor synthetic LKR transactions with amounts, scenario evidence and risk explanations. No real bank account is connected.",
   },
   {
     code: "02",
     title: "Rule-based risk scoring",
-    body: "Weighted rules (new device, high value, foreign geography, odd hours) combine into a 0-100 risk score and severity band.",
+    body: "Weighted rules for unfamiliar devices, high amounts, recent event frequency and unusual local hours produce explainable 0–100 scores.",
   },
   {
     code: "03",
-    title: "Device & IP fingerprint log",
-    body: "Every event records IP, ASN, browser, device and fingerprint — the metadata investigators legally work from.",
+    title: "Synthetic device evidence",
+    body: "Inspect unfamiliar-device scenario evidence and historical demonstration device logs. The simulator does not fingerprint your device.",
   },
   {
     code: "04",

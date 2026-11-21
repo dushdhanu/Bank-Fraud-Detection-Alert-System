@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-function checked(result: { error: unknown }): void {
+function checked(result: { error: unknown; data?: unknown }): void {
   if (result.error) throw new Error("Database operation failed. Check configuration and migrations.");
 }
 
@@ -143,7 +143,7 @@ export const getCaseDetail = createServerFn({ method: "GET" })
     const { supabase } = context;
     const { data: row } = await supabase
       .from("cases")
-      .select("*, accounts(account_number, holder_name), transactions(txn_ref, amount, city, country)")
+      .select("*, accounts(account_number, holder_name), transactions(txn_ref, amount, currency, city, country)")
       .eq("id", data.caseId)
       .maybeSingle();
     if (!row) return null;
