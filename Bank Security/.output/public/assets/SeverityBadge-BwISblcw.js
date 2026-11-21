@@ -1,0 +1,1 @@
+import{o as e}from"./useStore-B9WcefOa.js";import{a as t,i as n}from"./format-BwS2lsi5.js";var r=e();function i({severity:e}){return(0,r.jsx)(`span`,{className:`fade-in-soft inline-flex items-center rounded px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-wider ring-1 transition-transform duration-200 hover:scale-105 ${n(e)}`,children:t[e]})}export{i as t};
