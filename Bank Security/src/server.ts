@@ -49,7 +49,16 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      const normalized = await normalizeCatastrophicSsrResponse(response);
+      const headers = new Headers(normalized.headers);
+      headers.set('X-Content-Type-Options', 'nosniff');
+      headers.set('Referrer-Policy', 'no-referrer');
+      headers.set('X-Frame-Options', 'DENY');
+      headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+      headers.set('Content-Security-Policy', "base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'");
+      // Private responses must never be cached by shared proxies.
+      headers.set('Cache-Control', 'no-store');
+      return new Response(normalized.body, { status: normalized.status, statusText: normalized.statusText, headers });
     } catch (error) {
       console.error(error);
       return new Response(renderErrorPage(), {

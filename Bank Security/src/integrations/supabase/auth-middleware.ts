@@ -100,6 +100,12 @@ export const requireSupabaseAuth = createMiddleware({ type: 'function' }).server
       throw new Error('Unauthorized: No user ID found in token');
     }
 
+    // Confirm the account still exists and email verification has completed.
+    const { data: account, error: accountError } = await supabase.auth.getUser(token);
+    if (accountError || !account.user?.email_confirmed_at || account.user.id !== data.claims.sub) {
+      throw new Error('Unauthorized: A verified account is required');
+    }
+
     return next({
       context: {
         supabase,

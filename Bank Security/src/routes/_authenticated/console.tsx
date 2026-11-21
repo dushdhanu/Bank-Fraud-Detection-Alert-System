@@ -68,7 +68,6 @@ function ConsolePage() {
   const openCases = (data?.cases ?? []).filter((c) => c.status !== "resolved");
   const flagged = txns.filter((t) => t.status !== "cleared");
   const critical = txns.filter((t) => t.severity === "critical");
-  const exposure = flagged.reduce((s, t) => s + Number(t.amount), 0);
 
   return (
     <AppShell
@@ -83,7 +82,7 @@ function ConsolePage() {
           <option value="unusual_hour">Unusual local hour</option>
         </select><Button onClick={() => simulate.mutate()} disabled={simulate.isPending}>
           {simulate.isPending ? "Simulating…" : "Simulate transaction"}
-        </Button>
+        </Button></div>
       }
     >
       {isError && <div role="alert" className="mb-4 rounded border border-destructive p-4">Could not load transactions. Check the database configuration. <Button variant="outline" onClick={() => refetch()}>Retry</Button></div>}

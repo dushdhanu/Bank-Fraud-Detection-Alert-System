@@ -1,6 +1,9 @@
 -- Apply AFTER the existing 0000_fraud_detection_core migration.
 -- No existing roles are revoked automatically: audit historical analyst grants before use.
 begin;
+revoke create on schema public from public;
+alter function public.has_role(uuid,public.app_role) set search_path = '';
+alter function public.is_staff(uuid) set search_path = '';
 
 drop policy "profiles readable by authenticated" on public.profiles;
 create policy "own profile read" on public.profiles for select to authenticated
@@ -10,6 +13,9 @@ alter table public.rules add constraint rule_weight_range check (weight between 
 alter table public.transactions add constraint positive_amount check (amount > 0);
 alter table public.transactions add constraint score_range check (risk_score between 0 and 100);
 alter table public.transactions add column simulated boolean not null default true;
+alter table public.transactions add column received_at timestamptz not null default now();
+create index bankguard_account_received on public.transactions(account_id,received_at desc);
+create index bankguard_account_occurred on public.transactions(account_id,occurred_at desc);
 alter table public.transactions add column currency text not null default 'USD' check (currency in ('USD','LKR'));
 alter table public.alerts alter column delivered set default false;
 alter table public.alerts add column verification_status text not null default 'unresolved'
@@ -41,7 +47,7 @@ update public.rules set enabled = false, description = 'Reserved: no reliable co
 update public.rules set enabled = false, description = 'Reserved: replay events are suppressed by unique event references, not a fraud score' where code = 'R-090';
 
 create or replace function public.handle_new_user()
-returns trigger language plpgsql security definer set search_path = public as $$
+returns trigger language plpgsql security definer set search_path = '' as $$
 begin
   insert into public.profiles(id,email,full_name) values
     (new.id,new.email,left(coalesce(new.raw_user_meta_data->>'full_name','BankGuard user'),100)) on conflict do nothing;
@@ -57,13 +63,14 @@ select id,'DEMO-' || id::text,'Synthetic account','Colombo','LK' from public.pro
 where not exists(select 1 from public.accounts a where a.user_id = p.id);
 
 create or replace function public.simulate_bankguard_event(event_id uuid, scenario text)
-returns jsonb language plpgsql security definer set search_path = public as $$
+returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
   owner_id uuid := auth.uid(); a public.accounts; t public.transactions; r public.rules;
   amount_lkr numeric; fresh boolean; event_time timestamptz := now(); n int; score int := 0;
   band public.severity_level; fired boolean; hit_codes text[] := '{}'; case_id uuid; case_ref text;
 begin
   if owner_id is null then raise exception 'Authentication required'; end if;
+  if event_id is null then raise exception 'Event identifier required'; end if;
   if scenario not in ('normal','large_transfer','new_device','suspicious_transfer','unusual_hour') or scenario is null
     then raise exception 'Unsupported synthetic scenario'; end if;
   -- Serialize per user: concurrent retries, velocity checks, and rate limits remain consistent.
@@ -75,7 +82,7 @@ begin
     if t.account_id <> a.id then raise exception 'Event reference unavailable'; end if;
     return jsonb_build_object('txnRef',t.txn_ref,'riskScore',t.risk_score,'severity',t.severity,'status',t.status,'duplicate',true);
   end if;
-  select count(*) into n from public.transactions where account_id = a.id and occurred_at > now() - interval '1 minute';
+  select count(*) into n from public.transactions where account_id = a.id and received_at > now() - interval '1 minute';
   if n >= 10 then raise exception 'Simulation limit reached. Wait one minute.'; end if;
   amount_lkr := case when scenario in ('large_transfer','suspicious_transfer') then 85000 else 1500 end;
   fresh := scenario in ('new_device','suspicious_transfer');
@@ -113,7 +120,7 @@ begin
 end $$;
 
 create or replace function public.review_bankguard_alert(alert_id uuid, verdict text)
-returns void language plpgsql security definer set search_path = public as $$
+returns void language plpgsql security definer set search_path = '' as $$
 begin
   if auth.uid() is null or verdict not in ('recognized','suspicious','unresolved') or verdict is null then
     raise exception 'Invalid review'; end if;
@@ -125,7 +132,7 @@ begin
 end $$;
 
 create or replace function public.review_bankguard_case(case_id uuid, new_status public.case_status, note text default null)
-returns void language plpgsql security definer set search_path = public as $$
+returns void language plpgsql security definer set search_path = '' as $$
 begin
   if not public.is_staff(auth.uid()) then raise exception 'Staff authorization required'; end if;
   if length(note) > 1000 or new_status is null then raise exception 'Invalid case review'; end if;
@@ -136,7 +143,7 @@ end $$;
 
 -- Rule edits get an audit record; caller identity cannot be supplied by the client.
 create or replace function public.audit_bankguard_rule()
-returns trigger language plpgsql security definer set search_path = public as $$
+returns trigger language plpgsql security definer set search_path = '' as $$
 begin
   insert into public.case_events(actor_name,action,detail)
     values(coalesce(auth.uid()::text,'migration'),'rule configuration',new.code || ': enabled=' || new.enabled || ', weight=' || new.weight);

@@ -2,9 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-function checked<T>(result: { data: T; error: unknown }): T {
+function checked(result: { error: unknown }): void {
   if (result.error) throw new Error("Database operation failed. Check configuration and migrations.");
-  return result.data;
 }
 
 export const getViewerContext = createServerFn({ method: "GET" })
