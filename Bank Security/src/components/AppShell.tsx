@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getViewerContext } from "@/lib/fraud.functions";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const NAV = [
   { to: "/console", label: "Console" },
@@ -64,6 +65,7 @@ export function AppShell({
             <span className="hidden font-mono text-xs text-muted-foreground sm:inline">
               {data?.email ?? "…"} · {data?.roles?.join(", ") || "no role"}
             </span>
+            <ThemeToggle />
             <Button variant="outline" size="sm" onClick={signOut}>
               Sign out
             </Button>

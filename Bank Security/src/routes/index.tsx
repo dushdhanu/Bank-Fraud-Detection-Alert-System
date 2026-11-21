@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -72,15 +73,18 @@ function Landing() {
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-2">
-            <span className="live-dot h-2 w-2 rounded-full bg-primary" />
+            <span className="live-dot h-2 w-2 rounded-full bg-primary glow-pulse" />
             <span className="fade-in-soft font-mono text-sm font-semibold tracking-widest text-foreground">
               SENTINEL RISK OPS
             </span>
           </div>
 
-          <Button asChild size="sm">
-            <Link to="/auth">Sign in</Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button asChild size="sm">
+              <Link to="/auth">Sign in</Link>
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -137,7 +141,7 @@ function Landing() {
               <article
                 key={f.code}
                 style={{ animationDelay: `${i * 60}ms` }}
-                className="fade-up row-hover group bg-card p-5 hover:bg-secondary"
+                className="fade-up float row-hover group bg-card p-5 hover:bg-secondary"
               >
                 <p className="label-xs transition-colors group-hover:text-primary">{f.code}</p>
                 <h3 className="mt-2 text-sm font-semibold text-foreground">{f.title}</h3>

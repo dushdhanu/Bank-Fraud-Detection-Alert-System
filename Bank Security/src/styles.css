@@ -57,12 +57,13 @@
 :root {
   --radius: 0.5rem;
 
-  --ink: oklch(0.16 0.008 260);
-  --panel: oklch(0.2 0.009 260);
-  --raised: oklch(0.235 0.01 260);
-  --line: oklch(0.29 0.014 262);
-  --fg: oklch(0.88 0.01 258);
-  --brand: oklch(0.66 0.1 245);
+  /* LIGHT MODE - Crisp White & Blue */
+  --ink: oklch(0.98 0 0); /* White */
+  --panel: oklch(1 0 0); /* Pure White */
+  --raised: oklch(0.96 0.01 250); /* Slightly off-white */
+  --line: oklch(0.92 0.02 250); /* Light gray/blue border */
+  --fg: oklch(0.2 0.05 260); /* Deep Navy text */
+  --brand: oklch(0.55 0.15 255); /* Bright Blue */
 
   --sev-low: oklch(0.65 0.09 155);
   --sev-medium: oklch(0.77 0.13 85);
@@ -76,15 +77,45 @@
   --popover: var(--raised);
   --popover-foreground: var(--fg);
   --primary: var(--brand);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: var(--raised);
+  --secondary-foreground: var(--fg);
+  --muted: var(--raised);
+  --muted-foreground: oklch(0.5 0.03 260);
+  --accent: var(--raised);
+  --accent-foreground: var(--fg);
+  --destructive: var(--sev-critical);
+  --destructive-foreground: oklch(1 0 0);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--brand);
+}
+
+.dark {
+  /* DARK MODE - Professional Dark Blue & White */
+  --ink: oklch(0.18 0.03 260); /* Very Dark Blue */
+  --panel: oklch(0.22 0.04 260); /* Dark Blue */
+  --raised: oklch(0.25 0.05 260); /* Slightly Lighter Dark Blue */
+  --line: oklch(0.32 0.06 260); /* Border Blue */
+  --fg: oklch(0.98 0 0); /* White text */
+  --brand: oklch(0.65 0.15 255); /* Lighter Bright Blue */
+
+  --background: var(--ink);
+  --foreground: var(--fg);
+  --card: var(--panel);
+  --card-foreground: var(--fg);
+  --popover: var(--raised);
+  --popover-foreground: var(--fg);
+  --primary: var(--brand);
   --primary-foreground: var(--ink);
   --secondary: var(--raised);
   --secondary-foreground: var(--fg);
   --muted: var(--raised);
-  --muted-foreground: oklch(0.62 0.028 255);
+  --muted-foreground: oklch(0.7 0.03 260);
   --accent: var(--raised);
   --accent-foreground: var(--fg);
   --destructive: var(--sev-critical);
-  --destructive-foreground: oklch(0.98 0.003 250);
+  --destructive-foreground: oklch(1 0 0);
   --border: var(--line);
   --input: var(--line);
   --ring: var(--brand);
@@ -143,6 +174,18 @@
   }
 }
 
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes glowPulse {
+  0% { box-shadow: 0 0 10px 0px color-mix(in oklab, var(--brand) 30%, transparent); }
+  50% { box-shadow: 0 0 25px 5px color-mix(in oklab, var(--brand) 60%, transparent); }
+  100% { box-shadow: 0 0 10px 0px color-mix(in oklab, var(--brand) 30%, transparent); }
+}
+
 @utility pulse-crit {
   animation: rowPulse 1.4s ease-out 1;
 }
@@ -162,6 +205,14 @@
 @utility scan-bar {
   position: relative;
   overflow: hidden;
+}
+
+@utility float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@utility glow-pulse {
+  animation: glowPulse 2s ease-in-out infinite;
 }
 
 @utility row-hover {
