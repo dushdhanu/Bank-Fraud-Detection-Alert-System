@@ -50,7 +50,7 @@ export function AppShell({
           </Link>
 
           <nav className="flex flex-wrap items-center gap-1">
-            {NAV.map((item, i) => (
+            {NAV.filter(item => data?.isStaff || ["/console", "/alerts", "/devices", "/rules"].includes(item.to)).map((item, i) => (
               <Link
                 key={item.to}
                 to={item.to}

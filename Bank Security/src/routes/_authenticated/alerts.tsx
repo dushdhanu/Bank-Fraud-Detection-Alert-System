@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell, Panel } from "@/components/AppShell";
 import { SeverityBadge } from "@/components/SeverityBadge";
-import { getAlerts } from "@/lib/fraud.functions";
+import { getAlerts, reviewAlert } from "@/lib/fraud.functions";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { ago, maskAccount, type Severity } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/alerts")({
@@ -29,13 +31,20 @@ export const Route = createFileRoute("/_authenticated/alerts")({
 
 function AlertsPage() {
   const alertsFn = useServerFn(getAlerts);
-  const { data } = useQuery({ queryKey: ["alerts"], queryFn: () => alertsFn({}) });
+  const reviewFn = useServerFn(reviewAlert);
+  const qc = useQueryClient();
+  const review = useMutation({
+    mutationFn: (data: { alertId: string; verdict: "recognized" | "suspicious" | "unresolved" }) => reviewFn({ data }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["alerts"] }); toast.success("Your review was recorded. This is not bank confirmation."); },
+    onError: () => toast.error("Could not save your review. Only the account owner can review an alert."),
+  });
+  const { data, isLoading, isError } = useQuery({ queryKey: ["alerts"], queryFn: () => alertsFn({}) });
   const alerts = data ?? [];
 
   return (
     <AppShell
       title="Alert log"
-      subtitle="Notifications raised for high and critical severity activity."
+      subtitle="Synthetic high and critical activity. Mobile delivery is not configured. Your review is not official bank confirmation."
     >
       <Panel title={`Alerts · ${alerts.length}`}>
         <ul className="divide-y divide-border">
@@ -47,13 +56,17 @@ function AlertsPage() {
                 <p className="mt-1 font-mono text-[11px] text-muted-foreground">
                   {a.channel} → {a.recipient} ·{" "}
                   {a.accounts ? maskAccount(a.accounts.account_number) : "—"} · {ago(a.created_at)}{" "}
-                  ago · {a.delivered ? "delivered" : "queued"}
+                  · {a.delivered ? "provider accepted" : "recorded in dashboard; not sent to mobile"}
                 </p>
+                <p className="mt-2 text-sm">Your review: {a.verification_status}</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {(["recognized", "suspicious", "unresolved"] as const).map(verdict => <Button key={verdict} size="sm" variant="outline" disabled={review.isPending} onClick={() => review.mutate({ alertId: a.id, verdict })}>{verdict}</Button>)}
+                </div>
               </div>
             </li>
           ))}
           {alerts.length === 0 ? (
-            <li className="px-4 py-6 text-sm text-muted-foreground">No alerts raised.</li>
+            <li role={isError ? "alert" : "status"} className="px-4 py-6 text-sm text-muted-foreground">{isLoading ? "Loading alerts…" : isError ? "Could not load alerts. Check configuration and try again." : "No alerts raised."}</li>
           ) : null}
         </ul>
       </Panel>

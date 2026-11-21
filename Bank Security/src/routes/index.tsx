@@ -45,7 +45,7 @@ const FEATURES = [
   {
     code: "04",
     title: "Alerting",
-    body: "High and critical activity generates account-holder and admin alerts with the triggering context attached.",
+    body: "High and critical synthetic activity creates an in-app alert. Mobile delivery requires a future verified provider integration.",
   },
   {
     code: "05",
@@ -116,7 +116,7 @@ function Landing() {
           </div>
           <div className="mt-10 grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-4">
             {[
-              { k: "Rules engine", v: "6 weighted rules" },
+              { k: "Rules engine", v: "4 active MVP rules" },
               { k: "Severity bands", v: "low → critical" },
               { k: "Metadata", v: "IP · ASN · device" },
               { k: "Case states", v: "open → resolved" },

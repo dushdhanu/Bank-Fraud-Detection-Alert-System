@@ -40,6 +40,7 @@ export const getConsoleSnapshot = createServerFn({ method: "GET" })
       supabase.from("accounts").select("id, account_number, holder_name"),
       supabase.from("alerts").select("*").order("created_at", { ascending: false }).limit(30),
     ]);
+    [txnRes, caseRes, eventRes, accountRes, alertRes].forEach(checked);
     return {
       transactions: txnRes.data ?? [],
       cases: caseRes.data ?? [],
@@ -90,6 +91,8 @@ export const setRuleEnabled = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator(z.object({ ruleId: z.string().uuid(), enabled: z.boolean() }))
   .handler(async ({ data, context }) => {
+    const { data: allowed, error: roleError } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (roleError || !allowed) throw new Error("Administrator authorization required");
     const { error } = await context.supabase
       .from("rules")
       .update({ enabled: data.enabled })

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { AppShell, Panel } from "@/components/AppShell";
 import { SeverityBadge } from "@/components/SeverityBadge";
 import { Switch } from "@/components/ui/switch";
-import { getRules, setRuleEnabled } from "@/lib/fraud.functions";
+import { getRules, setRuleEnabled, getViewerContext } from "@/lib/fraud.functions";
 import type { Severity } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/rules")({
@@ -33,6 +33,8 @@ function RulesPage() {
   const qc = useQueryClient();
   const rulesFn = useServerFn(getRules);
   const toggleFn = useServerFn(setRuleEnabled);
+  const viewerFn = useServerFn(getViewerContext);
+  const { data: viewer } = useQuery({ queryKey: ["viewer"], queryFn: () => viewerFn({}) });
 
   const { data } = useQuery({ queryKey: ["rules"], queryFn: () => rulesFn({}) });
 
@@ -75,6 +77,8 @@ function RulesPage() {
                 </td>
                 <td className="px-3 py-2.5">
                   <Switch
+                    aria-label={`Enable ${r.label}`}
+                    disabled={!viewer?.roles.includes("admin") || toggle.isPending || ["R-055", "R-090"].includes(r.code)}
                     checked={r.enabled}
                     onCheckedChange={(v) => toggle.mutate({ ruleId: r.id, enabled: v })}
                   />

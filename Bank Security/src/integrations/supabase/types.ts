@@ -49,6 +49,7 @@ export type Database = {
       }
       alerts: {
         Row: {
+          verification_status: "recognized" | "suspicious" | "unresolved"
           account_id: string | null
           channel: string
           created_at: string
@@ -334,6 +335,8 @@ export type Database = {
       }
       transactions: {
         Row: {
+          currency: "USD" | "LKR"
+          simulated: boolean
           account_id: string
           amount: number
           asn: string | null
